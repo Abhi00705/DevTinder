@@ -1,10 +1,16 @@
 //starting file of our app
-//importing express
+
+const connectDB = require("./Config/database");
 const express = require('express');
+const User = require("./models/user");
 //creating new web server
 const app = express();
+
+
+// const {AdminAuth} = require("./middleware/Auth");
 //handling request
-// {
+{
+    // {
 //     //handle different request differently
 // app.use("/test ",(req, res) => {
 //     res.send("Hello from the server!");
@@ -40,48 +46,130 @@ const app = express();
 //     })
 // }
 
-{
-    //some routing pattern
+// {
+//     //some routing pattern
 
-    //in this i can wite any number of b but any thing else
-    // app.get("/ab+c", (req, res)=>{
-    //     res.send("some usefull patter of routing!");
-    // })
+//     //in this i can wite any number of b but any thing else
+//     // app.get("/ab+c", (req, res)=>{
+//     //     res.send("some usefull patter of routing!");
+//     // })
 
-    //in this i can write anything inplace of *
-    // app.get("/ab*c", (req, res)=>{
-    //     res.send("routing ab*c");
-    // })
+//     //in this i can write anything inplace of *
+//     // app.get("/ab*c", (req, res)=>{
+//     //     res.send("routing ab*c");
+//     // })
 
-    //here a(optional)?c
-    // app.get("/a(bc)?d", (req, res)=>{
-    //     res.send("a(bc is optional)?d");
-    // })
+//     //here a(optional)?c
+//     // app.get("/a(bc)?d", (req, res)=>{
+//     //     res.send("a(bc is optional)?d");
+//     // })
 
-    //rejex
-        //1. /a/ it check 'a' must be present  else any text can also be present
-        // app.get(/a/, (req, res)=>{
-        //     res.send("/a/ rejex using");
-        // })
+//     //rejex
+//         //1. /a/ it check 'a' must be present  else any text can also be present
+//         // app.get(/a/, (req, res)=>{
+//         //     res.send("/a/ rejex using");
+//         // })
 
-         //2. /.*fly$ is mean any text must end with fly
-        // app.get(/.*fly$/, (req, res)=>{
-	    //     res.send("flying");
-        // })
+//          //2. /.*fly$ is mean any text must end with fly
+//         // app.get(/.*fly$/, (req, res)=>{
+// 	    //     res.send("flying");
+//         // })
 
-        //geting id and password from api
-        // app.get("/user", (req, res)=>{
-        //     console.log(req.query);
-        //     res.send("getting id and password")
-        // })
+//         //geting id and password from api
+//         // app.get("/user", (req, res)=>{
+//         //     console.log(req.query);
+//         //     res.send("getting id and password")
+//         // })
 
-        //getting dynamic data
-        app.get("/user/:userID/:name/:password", (req, res) =>{
-            console.log(req.params)
-            res.send("dynamic routing!");
-        })
+//         //getting dynamic data
+//         app.get("/user/:userID/:name/:password", (req, res) =>{
+//             console.log(req.params)
+//             res.send("dynamic routing!");
+//         })
+// }
+// {
+// // app.use("/user", (req, res, next)=>{
+// //     console.log("1st response!");
+// //     next();
+// //     //  res.send('1st response'); // it will remove then browser will wait for response
+    
+
+// // },
+// // (req, res, next)=>{
+// //     console.log("2nd response!");
+// //     // res.send("2nd response!");
+// //     next(); 
+// // }
+// // ,
+// // (req, res, next)=>{
+// //     console.log("3nd response!");
+// //     // res.send("2nd response!");
+// //     next();
+// // }
+// // ,
+// // (req, res, )=>{
+// //     console.log("4nd response!");
+// //     // res.send("2nd response!");
+// //     // next();
+// // })
+// }
+
+// {
+//     //Middleware
+//     app.use("/admin", AdminAuth)
+//     // app.use("/admin", (req, res, next) =>{
+//     //     const token = "abc1";
+//     //     const isAdmin = token === "abc";
+//     //     if(!isAdmin){
+//     //         res.status(404).send("unauthorize");
+//     //     }
+//     //     else{
+//     //         next();
+//     //     }
+//     // })
+//     app.get("/admin/getAllData", (req,res)=>{
+//         res.send("get all data");
+//     })
+//     app.get("/admin/DeleteUser", (req,res)=>{
+//         res.send("user deleted");
+//     })
+
+// }
+
 }
-//server start listing request
-app.listen(7777, () => {
-    console.log("server is sucessfully listing on this port!777")
+//creating post api
+app.use(express.json());
+app.post("/signup", async (req, res)=> {
+    console.log(req.body);
+    const user = new User(req.body);
+    // const user = new User({
+    //     firstName:"vishal",
+    //     lastName:"kumar",
+    //     emailID:"vishalkumar6@gmail.com",
+    //     password:"vishal@123",
+    // })
+    try{
+        await user.save();
+        res.send("user added sucessfully!");
+    }
+    catch{(err) => {
+        res.status(400).send("Error saving the user:" + err.message);
+        
+    }
+}
+})
+
+
+
+connectDB()
+.then(() =>{
+    console.log("database connected!");
+    app.listen(7777, () => {
+        console.log("server is sucessfully listing on this port!777")
+    });
+})
+.catch((error)=>{
+    console.error("database not connected!");
 });
+
+

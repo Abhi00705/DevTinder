@@ -142,24 +142,67 @@ app.use(express.json());
 app.post("/signup", async (req, res)=> {
     console.log(req.body);
     const user = new User(req.body);
-    // const user = new User({
-    //     firstName:"vishal",
-    //     lastName:"kumar",
-    //     emailID:"vishalkumar6@gmail.com",
-    //     password:"vishal@123",
-    // })
+    
     try{
-        await user.save();
-        res.send("user added sucessfully!");
-    }
-    catch{(err) => {
-        res.status(400).send("Error saving the user:" + err.message);
+        if(user.skill.length < 10){
+            await user.save();
+            res.send("user added sucessfully!");
+        }else{
+            res.status(400).send("skill is more then 10")
+        }
         
+    }catch (err) {
+        console.log(err);
+        res.status(400).send("Error saving the user:" + err.message); 
     }
-}
+});
+
+app.get("/user", async (req, res) => {
+    const userEmail = req.body.emailID;
+
+    try{
+        const user = await User.findOne({emailID: userEmail });
+        // res.send(user);
+        if(user.length === 0){
+            res.status(400).send("User not found!");
+        }else{
+            res.send(user);
+        }
+    }catch(err){
+        res.status(400).send("something went wrong!");
+    }
+});
+
+app.get("/feed", async (req, res)=>{
+    try{
+        const user = await User.find({});
+        res.send(user);
+    }catch (err){
+        res.status(400).send("something went wrong!");
+    }
 })
 
+app.delete("/user", async (req, res)=>{
+    const userId = req.body.userId;
+    try{
+        const user = await User.findByIdAndDelete(userId);
+        res.send("User deleted sucessfully!");
+    }catch(err){
+        res.status(400).send("something went wrong!");
+    }
+});
 
+app.patch("/user", async (req, res)=>{
+    const userId = req.body.userId;
+    const data = req.body;
+    try{
+        const user = await User.findByIdAndUpdate({_id:userId},data);
+        console.log(user);
+        res.send("user updated successfully");
+    } catch (err){
+        res.status(400).send("something went worng!");
+    }
+});
 
 connectDB()
 .then(() =>{

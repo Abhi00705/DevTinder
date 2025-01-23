@@ -10,6 +10,8 @@ const jwt = require('jsonwebtoken');
 const user = require("./models/user");
 const cookieParser = require("cookie-parser");
 const {auth} = require("./middleware/Auth.js");
+
+
 //creating new web server
 const app = express();
 
@@ -147,79 +149,36 @@ const app = express();
 //creating post api
 app.use(express.json());
 app.use(cookieParser());
-app.post("/signup", async (req, res)=> {
-    console.log(req.body);
-    //validator
-    try{
-        console.log("i am above validation");
-        validateSignupData(req);
-        console.log("i am after validation");
-        const {firstName, lastName, emailId, password, gender, skill, photoURL} = req.body;
-        const hashPassword = await bcrypt.hash(password, 10);
-        console.log(hashPassword);
-        const user = new User({
-            firstName,
-            lastName,
-            emailId,
-            password: hashPassword,
-            gender,
-            skill,
-            photoURL,
-        }); 
-            await user.save();
-            res.send("user added sucessfully!");
-           
-    }catch (err) {
-        console.log(err);
-        res.status(400).send("Error : " + err.message); 
-    }
-});
 
-app.post("/login", async(req, res)=>{
-   try{
+const authRouter = require('./routes/authRouter.js');
+const connectionRoute = require('./routes/connectionRouter.js');
+const profile = require('./routes/profileRouter.js');
+
+
+
+app.use('/', authRouter);
+app.use('/', connectionRoute);
+app.use('/', profile);
+
+
+
+// app.get("/profile", auth, async(req, res) =>{
+//     try{
+//         res.send(req.user);
+//     }catch(err){
+//         res.status(400).send("Error: "+ err.message);
+//     }
+// })
+
+// app.get("/sendConnection", auth, async(req, res) => {
+//     try{
+
+//         res.send("user connected send!");
+//     }catch(err){
+//         res.status(400).send("user connected!");
        
-        const{emailId, password} = req.body;
-        const user = await User.findOne({emailId: emailId});
-        console.log("checking" + user);
-        console.log(user.emailId);
-       
-        if(!user.emailId){
-            
-            throw new Error("invalid email!");
-        }
-        
-        const isPassword = await bcrypt.compare(password, user.password);
-        if(!isPassword){
-
-            throw new Error("invalid password!");
-        }else{
-            //creating jwt cookie";
-            const token = await jwt.sign({_id:user._id}, "Dev@Tinder123", {/*expiresIn  */}); //{expiresIn:'1h'}
-            res.cookie("token", token,{/*expires: new Date(Date.now()+ 0*60)*/});
-            res.send("Login sucessfully");
-        }
-        
-    }catch(err){
-        res.status(400).send("Error : "+ err.message);
-    }
-})
-
-app.get("/profile", auth, async(req, res) =>{
-    try{
-        res.send(req.user);
-    }catch(err){
-        res.status(400).send("Error: "+ err.message);
-    }
-})
-
-app.get("/sendConnection", auth, async(req, res) => {
-    try{
-        res.send("user connected send!");
-    }catch(err){
-        res.status(400).send("user connected!");
-       
-    }
-})
+//     }
+// })
 connectDB()
 .then(() =>{
     console.log("database connected!");

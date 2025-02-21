@@ -5,22 +5,22 @@ const {auth} = require("../middleware/Auth");
 const ConnectionRequest = require('../models/connectionRequest');
 const User = require('../models/user');
 
-connectionRoute.get('/connectionRequest', async (req, res)=>{
-    try{
-        const {token} = req.cookies;
-        if(!token){
-            throw new Error("invaid token");
+// connectionRoute.get('/connectionRequest', async (req, res)=>{
+//     try{
+//         const {token} = req.cookies;
+//         if(!token){
+//             throw new Error("invaid token");
 
-        }
-        const decodeMessage = await jwt.verify(token, "Dev@Tinder123", {expiresIn: '1d'});
-        if(!decodeMessage){
-            throw new Error("invalid token");
-        } 
-        res.send("connection Request send!");
-    }catch(err){
-        res.status(400).send("Error : "+ err.message);
-    }
-})
+//         }
+//         const decodeMessage = await jwt.verify(token, "Dev@Tinder123", {expiresIn: '1d'});
+//         if(!decodeMessage){
+//             throw new Error("invalid token");
+//         } 
+//         res.send("connection Request send!");
+//     }catch(err){
+//         res.status(400).send("Error : "+ err.message);
+//     }
+// })
 
 connectionRoute.post("/request/send/:status/:toUserId",auth, async(req, res) => {
 try{
@@ -28,7 +28,7 @@ try{
     const toUserId = req.params.toUserId;
     const status = req.params.status;
     
-    const allowedStatus = ["ignored" ,"interested"];
+    const allowedStatus = ["ignored" ,"interested"]; 
    
     if( !allowedStatus.includes(status)){
       
@@ -66,8 +66,8 @@ try{
     res.json({
         message:"Connection Request Sent Sucessfully",
         data,
-    })
-    console.log("checking");
+    });
+    
 }catch(err){
     res.status(400).send("Error : "+ err.message);
 }

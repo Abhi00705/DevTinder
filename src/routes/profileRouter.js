@@ -9,13 +9,14 @@ profile.get('/profile', async (req, res)=>{
     try{
         const {token} = req.cookies;
         if(!token){
-            throw new Error("invalid token");
+            // throw new Error("invalid token");
+           return res.status(400).send("invalid token");
         }
         const decodeMessage = await jwt.verify(token, "Dev@Tinder123");
         if(!decodeMessage){
             throw new Error("invalid token")
         }
-        const {_id} = decodeMessage;
+        const {_id} = decodeMessage; 
         const userData = await User.findById(_id);
         if(!userData){
             throw new Error("invalid token");
@@ -24,29 +25,35 @@ profile.get('/profile', async (req, res)=>{
 
 
     }catch(err){
-        res.status(400).send('Error: '+ err.message);
+        res.status(404).send('Error: '+ err.message);
     }
 })
 
 profile.patch('/profile/edit',auth, async (req, res) =>{
     
     try{
+        
         if(!validateProfileEdit(req)){
             throw new Error("invalid edit request!");
         }
-        
-        const loggedInUser = req.user;
+       
+        const loggedInUser = req.user; 
         Object.keys(req.body).forEach((key) => {
 
             return (loggedInUser[key] = req.body[key])
         });
-        console.log("checking");
+        
         await loggedInUser.save();
-        res.send(`${loggedInUser.firstName}, your profile undated successfuly`);
+        
+        res.json({
+            data:loggedInUser,
+            Message:`${loggedInUser.firstName}, your profile undated successfuly`,
+
+        });
 
     }catch(err){
-        res.status(400).send("Error : "+ err.message);
+        res.status(402).send("Error : "+ err.message);
     }
 });
 
-module.exports = profile;
+module.exports = profile; 
